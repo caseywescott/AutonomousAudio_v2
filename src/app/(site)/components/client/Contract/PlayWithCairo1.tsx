@@ -59,14 +59,18 @@ export default function PlayWithCairo1() {
             if (walletAccountFromContext) {
                 try {
                     const result = await walletAccountFromContext.waitForTransaction(txHash);
-                    console.log("Transaction status updated:", result);
+                    console.log("Transaction status updated:", result); // Inspect the result structure
                     setTransactionResult(result);
     
-                    // If the transaction is complete, stop polling
-                    if (result && result.finality_status === 'ACCEPTED_ON_L2') {
+                    // Implement custom logic here based on actual properties in `result`
+                    if (result && 'finality_status' in result && result.finality_status === 'ACCEPTED_ON_L2') {
+                        clearInterval(intervalId);
+                        setIsPolling(false);
+                    } else if (result && 'execution_status' in result && result.execution_status === 'SUCCEEDED') {
                         clearInterval(intervalId);
                         setIsPolling(false);
                     }
+                    // Add more conditions as necessary based on what the result contains
                 } catch (error) {
                     console.error("Error while polling transaction status:", error);
                 }
@@ -76,6 +80,8 @@ export default function PlayWithCairo1() {
             }
         }, 5000); // Polling interval in milliseconds
     };
+    
+    
     
     
 

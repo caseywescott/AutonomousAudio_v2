@@ -31,21 +31,28 @@ export default function PlayWithCairo1() {
         console.log("increase-Cairo1ReadContract=", cairo1Contract.functions);
         const myCall = cairo1Contract.populate("increase_balance", [amount]);
         console.log("Call=", myCall);
+    
         try {
-            const resp: InvokeFunctionResponse = await walletAccountFromContext?.execute(myCall);
-            console.log("increaseBalance txH =", resp.transaction_hash);
-            setTransactionHash(resp.transaction_hash);
-
-            // Reset the transaction result to show the spinner
-            setTransactionResult(undefined);
-
-            // Start polling the transaction status
-            setIsPolling(true);
-            pollTransactionStatus(resp.transaction_hash);
+            const resp = await walletAccountFromContext?.execute(myCall);
+            
+            if (resp && resp.transaction_hash) {
+                console.log("increaseBalance txH =", resp.transaction_hash);
+                setTransactionHash(resp.transaction_hash);
+    
+                // Reset the transaction result to show the spinner
+                setTransactionResult(undefined);
+    
+                // Start polling the transaction status
+                setIsPolling(true);
+                pollTransactionStatus(resp.transaction_hash);
+            } else {
+                console.error("Transaction response is undefined or doesn't contain a transaction_hash");
+            }
         } catch (e: any) {
             console.log("error increase balance =", e);
         }
     }
+    
 
     const pollTransactionStatus = (txHash: string) => {
         const intervalId = setInterval(async () => {

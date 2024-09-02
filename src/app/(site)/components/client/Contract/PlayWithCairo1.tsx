@@ -56,17 +56,27 @@ export default function PlayWithCairo1() {
 
     const pollTransactionStatus = (txHash: string) => {
         const intervalId = setInterval(async () => {
-            const result = await walletAccountFromContext.waitForTransaction(txHash);
-            console.log("Transaction status updated:", result);
-            setTransactionResult(result);
-
-            // Stop polling when transaction is confirmed
-            if (result.status === "ACCEPTED_ON_L2" || result.status === "ACCEPTED_ON_L1" || result.status === "REJECTED") {
-                clearInterval(intervalId);
-                setIsPolling(false);
+            if (walletAccountFromContext) {
+                try {
+                    const result = await walletAccountFromContext.waitForTransaction(txHash);
+                    console.log("Transaction status updated:", result);
+                    setTransactionResult(result);
+    
+                    // If the transaction is complete, stop polling
+                    if (result && result.status === 'ACCEPTED_ON_L2') {
+                        clearInterval(intervalId);
+                        setIsPolling(false);
+                    }
+                } catch (error) {
+                    console.error("Error while polling transaction status:", error);
+                }
+            } else {
+                console.error("walletAccountFromContext is undefined, cannot wait for transaction");
+                clearInterval(intervalId); // Stop polling if the wallet context is missing
             }
-        }, 3000); // Check every 3 seconds
+        }, 5000); // Polling interval in milliseconds
     };
+    
 
     return (
         <Box bg='gray.100' color='black' borderWidth='1px' borderRadius='md' paddingBottom='3px'>

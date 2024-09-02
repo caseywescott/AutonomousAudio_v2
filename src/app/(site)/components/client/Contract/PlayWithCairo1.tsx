@@ -63,7 +63,7 @@ export default function PlayWithCairo1() {
                     setTransactionResult(result);
     
                     // If the transaction is complete, stop polling
-                    if (result && result.status === 'ACCEPTED_ON_L2') {
+                    if (result && result.finality_status === 'ACCEPTED_ON_L2') {
                         clearInterval(intervalId);
                         setIsPolling(false);
                     }
@@ -76,6 +76,7 @@ export default function PlayWithCairo1() {
             }
         }, 5000); // Polling interval in milliseconds
     };
+    
     
 
     return (
